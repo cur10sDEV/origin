@@ -1,23 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React, { useState, useEffect } from "react";
+import MovieCard from "./MovieCard";
+import SearchForm from "./SearchForm";
+import ApiID from "./Api";
 
 function App() {
+  const [movies, setMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [apiKey, setApiKey] = useState(0);
+
+  const API_URL = `https://www.omdbapi.com?apikey=${apiKey}`;
+
+  const searchMovies = async (title) => {
+    const res = await fetch(`${API_URL}&s=${title}`);
+    const { Search } = await res.json();
+    setMovies(Search);
+  };
+
+  useEffect(() => {
+    searchMovies("Avengers");
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <h1>MovieLand</h1>
+      <ApiID
+        value={apiKey}
+        onChange={(event) => setApiKey(event.target.value)}
+      />
+      <SearchForm
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+        onClick={() => searchMovies(searchTerm)}
+      />
+      {movies && movies.length > 0 ? (
+        <div className="container">
+          {movies.map((movie) => {
+            return <MovieCard key={movie.imdbID} movie={movie} />;
+          })}
+        </div>
+      ) : (
+        <div className="empty">
+          <h2>No movies Found</h2>
+        </div>
+      )}
     </div>
   );
 }
